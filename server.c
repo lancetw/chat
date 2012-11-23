@@ -34,7 +34,7 @@
 
 /* 預設緩衝區長度為 1024 bytes */
 
-#define BufferLength 1024
+#define BUFF_LEN 1024
 
 /* 預設開放端口*/
 
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
     int result;
     fd_set readfds, testfds;
     int fdmax;
-    char buf[BufferLength]; 
-    char message[BufferLength]; 
+    char buf[BUFF_LEN]; 
+    char message[BUFF_LEN]; 
     int j;
     
     FD_ZERO(&buf);
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
                             /* 傳給線上所有使用者 */
                             if (FD_ISSET(j, &readfds)) 
                             {
-                                /* 不要傳給自己 (server_sockfd) 和原始發送端 */
+                                /* 不要傳給自己 (server_sockfd) 和原始發送端 (fd) */
                                 if (j != server_sockfd && j != fd) 
                                 {
                                     DEBUG("送出訊息\"%s\"給#%d\n", buf, j);

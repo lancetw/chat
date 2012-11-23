@@ -35,7 +35,7 @@
 
 /* 預設緩衝區長度為 1024 bytes */
 
-#define BufferLength 1024
+#define BUFF_LEN 1024
 
 /* 預設開放端口*/
 
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
     int len;
     struct sockaddr_in address;
     int result;
-    char buf[BufferLength]; 
-    char message[BufferLength]; 
+    char buf[BUFF_LEN]; 
+    char message[BUFF_LEN]; 
     fd_set readfds;
     
     FD_ZERO(&buf);
