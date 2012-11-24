@@ -32,10 +32,17 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <limits.h>
+#include <netdb.h>
+#include <errno.h>
+#include <termios.h>
 
 /* 預設緩衝區長度為 1024 bytes */
 
 #define BUFF_LEN 1024
+
+/* 預設伺服器位址 */
+#define SERVER "127.0.0.1"
 
 /* 預設開放端口*/
 
@@ -45,72 +52,89 @@ int stdin_ready(int fd);
 
 int main(int argc, char *argv[]) 
 {
-    int client_sockfd, fd;
+    int client_sockfd, fd, nread;
     int len;
     struct sockaddr_in address;
+    char server[UCHAR_MAX];
     int result;
     char buf[BUFF_LEN]; 
-    char message[BUFF_LEN]; 
+    char tmp[BUFF_LEN];
+    char msg[BUFF_LEN];
     fd_set readfds;
-    
-    FD_ZERO(&buf);
-    FD_ZERO(&message);
+    struct termios old_flags, new_flags;
+    int retval;
 
     /*  建立客戶端 socket  */
 
-    client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    /*  設定客戶端 socket  */
-    
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr("127.0.0.1");
-    address.sin_port = htons(PORT);
-    len = sizeof(address);
-
-    /* 與伺服器建立連線 */
-
-    result = connect(client_sockfd, (struct sockaddr *)&address, len);
-
-    if(result == -1) {
-        perror("oops: client error");
+    if ((client_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        perror("socket() 呼叫失敗");
         exit(EXIT_FAILURE);
     }
 
-    printf("進入聊天室...\n");
+    /*  設定客戶端 socket  */
+    
+    /* 使用者提供伺服器資訊 */
+    if (argc > 1) {
+        /* 使用參數模式 */
+        strcpy(server, argv[1]);
+        printf("正在連線到 %s:%d ...\n", server, PORT);
+    } else {
+        /* 使用預設伺服器資訊 */
+        strcpy(server, SERVER);
+    }
 
+    memset(&address, 0x00, sizeof (struct sockaddr_in));
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr(SERVER);
+    address.sin_port = htons(PORT);
+    len = sizeof (address);
 
+    /* 與伺服器建立連線 */
+
+    if ((result = connect(client_sockfd, (struct sockaddr *)&address, len)) < 0) {
+        perror("connect() 呼叫失敗"); 
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+
+    } else {
+        printf("進入聊天室...可以開始輸入訊息了\n");
+    }
+    
     FD_ZERO(&readfds);
+    FD_ZERO(&buf);
+    FD_ZERO(&tmp);
+    FD_ZERO(&msg);
     FD_SET(client_sockfd, &readfds);
     
     /* 開始傳送資料 */
 
     for(;;) {
         /* 開始接收資料 */
-        int nread, nwrite;
         
         ioctl(client_sockfd, FIONREAD, &nread);
         
         if (stdin_ready(fileno(stdin))) {
             fscanf(stdin, "%s", buf);
-            send(client_sockfd, buf, sizeof (buf), 0);
-        }
-        
-        if(!nread == 0) { /* 處理客戶端資料 */
-            
-            /* 開始接收資料 */
-            if (FD_ISSET(client_sockfd, &readfds)) 
-            {
-                recv(client_sockfd, buf, sizeof (buf), 0);
-                usleep(100);
-                printf("%s\n", buf);
+            if (send(client_sockfd, buf, sizeof (buf), 0)) {
+                DEBUG("訊息已送出\n");
             }
             
         }
 
+        if(!nread == 0) { /* 處理客戶端資料 */
+            
+            /* 開始接收資料 */
+            if (FD_ISSET(client_sockfd, &readfds)) {
+                if (recv(client_sockfd, buf, sizeof (buf), 0)) {
+                     DEBUG("訊息已接收\n");
+                }
+                
+                usleep(100);
+                
+                printf("%s\n", buf);
+            }
+        }
     }
-
-
-
 
     /* 關閉 socket */
     

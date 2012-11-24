@@ -40,9 +40,11 @@
 
 #define PORT 1234
 
+void timestamp(char* ubuf);
+
 int main(int argc, char *argv[]) 
 {
-    int server_sockfd, client_sockfd;
+    int server_sockfd, client_sockfd, on;
     unsigned int server_len, client_len;
     struct sockaddr_in server_address;
     struct sockaddr_in client_address;
@@ -50,30 +52,54 @@ int main(int argc, char *argv[])
     fd_set readfds, testfds;
     int fdmax;
     char buf[BUFF_LEN]; 
-    char message[BUFF_LEN]; 
+    char tmp[BUFF_LEN]; 
+    char msg[BUFF_LEN]; 
     int j;
+
+    /*  建立伺服器 socket  */
+
+    if ((server_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        perror("socket() 呼叫失敗");
+        exit(EXIT_FAILURE);
+    }
     
-    FD_ZERO(&buf);
-    FD_ZERO(&message);
+    /* "address already in use" 錯誤訊息 */
+    
+    if (setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (int)) == -1) {
+        perror("setsockopt() 呼叫失敗");
+        exit(EXIT_FAILURE);
+    }
 
-    /*  設定 Server socket  */
+    /*  設定伺服器 socket  */
 
-    server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
+    memset(&server_address, 0x00, sizeof (struct sockaddr_in));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = htons(PORT);
-    server_len = sizeof(server_address);
+    server_len = sizeof (server_address);
+    server_len = sizeof (server_address);
 
-    /*  綁定 socket fd 與 server 位址  */
+    /*  綁定 socket fd 與伺服器位址  */
 
-    bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
+    if (bind(server_sockfd, (struct sockaddr *)&server_address, server_len) == -1) {
+        perror("bind() 呼叫失敗");
+        exit(EXIT_FAILURE);
+
+    }
 
     /*  傾聽 socket fd  */
 
-    listen(server_sockfd, 10);
+    if (listen(server_sockfd, 10) == -1) {
+        perror("listen() 呼叫失敗");
+        exit(EXIT_FAILURE);
+
+    }
 
     FD_ZERO(&readfds);
+    FD_ZERO(&testfds);
+    FD_ZERO(&buf);
+    FD_ZERO(&tmp);
+    FD_ZERO(&msg);
     FD_SET(server_sockfd, &readfds);
     
     /* 紀錄目前的 fd 數量 */
@@ -87,6 +113,7 @@ int main(int argc, char *argv[])
         int fd;
         int nread;
 
+        /* 複製編號 */
         testfds = readfds;
         fd = 0;
         
@@ -95,11 +122,11 @@ int main(int argc, char *argv[])
         result = select(fdmax + 1, &testfds, (fd_set *)0, (fd_set *)0, (struct timeval *) 0);
 
         if(result < 1) {
-            perror("server 發生錯誤");
+            perror("伺服器發生問題");
             exit(EXIT_FAILURE);
         }
 
-        /* 遍歷 FD_LIST */
+        /* 遍歷 fd_set */
         
         for(fd = 0; fd <= fdmax; fd++) {
             if(FD_ISSET(fd, &testfds)) {
@@ -113,12 +140,10 @@ int main(int argc, char *argv[])
                     
                     /* 紀錄 file descriptor 最大值 */
                     
-                    if (client_sockfd > fdmax) 
-                    { 
+                    if (client_sockfd > fdmax) { 
                         fdmax = client_sockfd;
                     }
-                    
-                    DEBUG("%s: 新連線 %s 於 socket %d\n", argv[0], inet_ntoa(client_address.sin_addr), client_sockfd);
+                    DEBUG("%s: 新連線 %s 於 socket#%d\n", argv[0], inet_ntoa(client_address.sin_addr), client_sockfd);
                     
                 } else {
                     
@@ -135,27 +160,34 @@ int main(int argc, char *argv[])
                         
                         /* 開始接收資料 */
                         
-                        recv(fd, buf, sizeof (buf), 0);
+                        if (recv(fd, buf, sizeof (buf), 0)) {
+                             DEBUG("訊息已接收\n");
+                        }
+                        
                         usleep(100);
-                        printf("%s\n", buf);
+                        
+                        //sprintf(msg, "%s %s", timestamp(tmp), buf);
+                        //timestamp(tmp);
+                        //printf("%s\n", tmp);
 
                         /* 處理取得的資料 */
-                        for (j = 0; j <= fdmax; j++)
-                        {
+                        memcpy(msg, buf, strlen(buf));
+                        
+                        for (j = 0; j <= fdmax; j++) {
+                            
                             /* 傳給線上所有使用者 */
-                            if (FD_ISSET(j, &readfds)) 
-                            {
-                                /* 不要傳給自己 (server_sockfd) 和原始發送端 (fd) */
-                                if (j != server_sockfd && j != fd) 
-                                {
-                                    DEBUG("送出訊息\"%s\"給#%d\n", buf, j);
-                                    send(j, buf, sizeof (buf), 0);
+                            
+                            if (FD_ISSET(j, &readfds)) {
+                                
+                                /* 不要傳給自己 (server_sockfd) */
+                                
+                                if (j != server_sockfd) {
+                                    if (send(j, msg, sizeof (msg), 0)) {
+                                        DEBUG("送出訊息\"%s\"給#%d\n", buf, j);
+                                    }
                                 }
                             }
-                        }                        
-
-
-
+                        }
                     }
                 }
             }
@@ -168,4 +200,20 @@ int main(int argc, char *argv[])
     exit(EXIT_SUCCESS);
     
     return EXIT_SUCCESS;
+}
+
+
+void timestamp(char* ubuf) {
+    
+    char            fmt[64], buf[64];
+    struct timeval  tv;
+    struct tm       *tm;
+
+    gettimeofday(&tv, NULL);
+    
+    if((tm = localtime(&tv.tv_sec)) != NULL) {
+            strftime(fmt, strlen(fmt), "[%H:%M:%S]", tm);
+            snprintf(buf, strlen(buf), fmt, tv.tv_usec);
+            memcpy(ubuf, buf, strlen(buf));
+    }
 }
