@@ -8,12 +8,17 @@ Hsin-lin Cheng <lancetw@gmail.com>
 
 Command:
 
-	$ make
+    $ make
 
 Optional:
 	
-	$ make server && make client
+    $ make server && make client
 
 DEBUG mode:
 
     $ make debug
+    
+Screenshot:
+
+![Screenshot](http://i.imgur.com/fYQ00.png "Screenshot")
+
