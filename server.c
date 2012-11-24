@@ -18,9 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 除錯模式 */
-#define _DEBUG        
-
 #include "global.h"
 
 #include <stdio.h>
@@ -40,7 +37,7 @@
 
 #define PORT 1234
 
-void timestamp(char* ubuf);
+void timestamp(char*);
 
 int main(int argc, char *argv[]) 
 {
@@ -163,15 +160,14 @@ int main(int argc, char *argv[])
                         if (recv(fd, buf, sizeof (buf), 0)) {
                              DEBUG("訊息已接收\n");
                         }
+
+                        /* 處理取得的資料 */
                         
                         usleep(100);
                         
-                        //sprintf(msg, "%s %s", timestamp(tmp), buf);
-                        //timestamp(tmp);
-                        //printf("%s\n", tmp);
-
-                        /* 處理取得的資料 */
-                        memcpy(msg, buf, strlen(buf));
+                        timestamp(tmp);
+                        sprintf(msg, "%s %s", tmp, buf);
+                        printf("%s\n", msg);
                         
                         for (j = 0; j <= fdmax; j++) {
                             
@@ -212,8 +208,8 @@ void timestamp(char* ubuf) {
     gettimeofday(&tv, NULL);
     
     if((tm = localtime(&tv.tv_sec)) != NULL) {
-            strftime(fmt, strlen(fmt), "[%H:%M:%S]", tm);
-            snprintf(buf, strlen(buf), fmt, tv.tv_usec);
-            memcpy(ubuf, buf, strlen(buf));
+            strftime(fmt, sizeof (fmt), "[%H:%M:%S]", tm);
+            snprintf(buf, sizeof (buf), fmt, tv.tv_usec);
+            memcpy(ubuf, buf, sizeof (buf));
     }
 }

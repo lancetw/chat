@@ -16,11 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
-/* 除錯模式 */
-
-#define _DEBUG        
+ */       
 
 #include "global.h"
 
@@ -35,7 +31,6 @@
 #include <limits.h>
 #include <netdb.h>
 #include <errno.h>
-#include <termios.h>
 
 /* 預設緩衝區長度為 1024 bytes */
 
@@ -61,8 +56,6 @@ int main(int argc, char *argv[])
     char tmp[BUFF_LEN];
     char msg[BUFF_LEN];
     fd_set readfds;
-    struct termios old_flags, new_flags;
-    int retval;
 
     /*  建立客戶端 socket  */
 
