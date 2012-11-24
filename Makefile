@@ -17,4 +17,4 @@ client_debug: client.c
 	${CC} -o client_d -D_DEBUG ${CFLAGS} client.c
 
 clean:                 
-	    rm -rf server client server_d client_d
+    rm -rf server client server_d client_d
