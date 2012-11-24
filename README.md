@@ -1,6 +1,6 @@
 說明
 --------
-資管所企業資料通訊作業
+資管所企業資料通訊作業 - 簡易CLI聊天室 Client/Server
 
 Hsin-lin Cheng <lancetw@gmail.com>
 
