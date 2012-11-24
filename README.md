@@ -2,7 +2,7 @@
 --------
 資管所企業資料通訊作業 - 簡易CLI聊天室 Client/Server
 
-Hsin-lin Cheng <lancetw@gmail.com>
+鄭新霖 aka Hsin-lin Cheng <<lancetw@gmail.com>>
 
 - - - - 
 
