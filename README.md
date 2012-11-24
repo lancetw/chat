@@ -13,3 +13,7 @@ Command:
 Optional:
 	
 	$ make server && make client
+
+DEBUG mode:
+
+    $ make debug
