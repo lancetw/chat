@@ -47,7 +47,7 @@ int stdin_ready(int fd);
 
 int main(int argc, char *argv[]) 
 {
-    int client_sockfd, fd, nread;
+    int client_sockfd, nread;
     int len;
     struct sockaddr_in address;
     char server[UCHAR_MAX];
@@ -55,7 +55,15 @@ int main(int argc, char *argv[])
     char buf[BUFF_LEN]; 
     char tmp[BUFF_LEN];
     char msg[BUFF_LEN];
+    char nick[UCHAR_MAX];
     fd_set readfds;
+
+    /* 要求使用者輸入暱稱 */
+    
+    do {
+        printf("請輸入暱稱：");
+        scanf("%s", nick);
+    } while ((char*)NULL == nick);
 
     /*  建立客戶端 socket  */
 
@@ -90,7 +98,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     } else {
-        printf("進入聊天室...可以開始輸入訊息了\n");
+        printf("連線中...\n");
     }
     
     FD_ZERO(&readfds);
@@ -99,7 +107,9 @@ int main(int argc, char *argv[])
     FD_ZERO(&msg);
     FD_SET(client_sockfd, &readfds);
     
-    /* 開始傳送資料 */
+    /* 開始傳送接收資料 */
+
+    printf("%s 歡迎加入聊天室\n", nick);
 
     for(;;) {
         /* 開始接收資料 */
@@ -107,8 +117,10 @@ int main(int argc, char *argv[])
         ioctl(client_sockfd, FIONREAD, &nread);
         
         if (stdin_ready(fileno(stdin))) {
-            fscanf(stdin, "%s", buf);
-            if (send(client_sockfd, buf, sizeof (buf), 0)) {
+            //sscanf(stdin, "%[^\t\n]", buf);
+            fscanf(stdin, "\n%[^\n]", buf);
+            sprintf(msg, "%s: %s", nick, buf);
+            if (send(client_sockfd, msg, sizeof (msg), 0)) {
                 DEBUG("訊息已送出\n");
             }
             
@@ -142,7 +154,7 @@ int main(int argc, char *argv[])
 int stdin_ready(int fd) {
     fd_set fdset;
     struct timeval timeout;
-    int ret;
+    
     FD_ZERO(&fdset);
     FD_SET(fd, &fdset);
     timeout.tv_sec = 0;
