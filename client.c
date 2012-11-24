@@ -43,7 +43,7 @@
 
 #define PORT 12345
 
-int stdin_ready(int fd);
+int stdin_ready(void);
 
 int main(int argc, char *argv[]) 
 {
@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
     char msg[BUFF_LEN];
     char nick[UCHAR_MAX];
     fd_set readfds;
+
+
+    DEBUG("除錯模式啟動\n");
 
     /* 要求使用者輸入暱稱 */
     
@@ -116,15 +119,15 @@ int main(int argc, char *argv[])
         
         ioctl(client_sockfd, FIONREAD, &nread);
         
-        if (stdin_ready(fileno(stdin))) {
-            //sscanf(stdin, "%[^\t\n]", buf);
+        if (stdin_ready()) {
             fscanf(stdin, "\n%[^\n]", buf);
             sprintf(msg, "%s: %s", nick, buf);
             if (send(client_sockfd, msg, sizeof (msg), 0)) {
                 DEBUG("訊息已送出\n");
             }
-            
         }
+
+        usleep(100);
 
         if (!nread == 0) { /* 處理客戶端資料 */
             
@@ -133,9 +136,9 @@ int main(int argc, char *argv[])
                 if (recv(client_sockfd, buf, sizeof (buf), 0)) {
                      DEBUG("訊息已接收\n");
                 }
-                
+
                 usleep(100);
-                
+
                 printf("%s\n", buf);
             }
         }
@@ -151,14 +154,18 @@ int main(int argc, char *argv[])
 
 
 /* 以 select() 實作 non-blocking 的輸入 */
-int stdin_ready(int fd) {
+int stdin_ready() {
     fd_set fdset;
     struct timeval timeout;
+    int fd;
     
+    fd = fileno(stdin);
     FD_ZERO(&fdset);
     FD_SET(fd, &fdset);
     timeout.tv_sec = 0;
     timeout.tv_usec = 1;
-
+    
+    usleep(5000);    /* avoid high CPU loading */
+    
     return select(fd + 1, &fdset, NULL, NULL, &timeout) == 1 ? 1 : 0;
 }
