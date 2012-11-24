@@ -35,7 +35,7 @@
 
 /* 預設開放端口*/
 
-#define PORT 1234
+#define PORT 12345
 
 void timestamp(char*);
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     DEBUG("除錯模式啟動\n");
     printf("伺服器已啟動，正在等待使用者上線\n");
 
-    while(1) {
+    for (;;) {
         int fd;
         int nread;
 
@@ -118,19 +118,19 @@ int main(int argc, char *argv[])
 
         result = select(fdmax + 1, &testfds, (fd_set *)0, (fd_set *)0, (struct timeval *) 0);
 
-        if(result < 1) {
+        if (result < 1) {
             perror("伺服器發生問題");
             exit(EXIT_FAILURE);
         }
 
         /* 遍歷 fd_set */
         
-        for(fd = 0; fd <= fdmax; fd++) {
-            if(FD_ISSET(fd, &testfds)) {
+        for (fd = 0; fd <= fdmax; fd++) {
+            if (FD_ISSET(fd, &testfds)) {
 
                 /* 處理伺服器端 */
                 
-                if(fd == server_sockfd) {
+                if (fd == server_sockfd) {
                     client_len = sizeof(client_address);
                     client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_address, &client_len);
                     FD_SET(client_sockfd, &readfds);
@@ -148,13 +148,13 @@ int main(int argc, char *argv[])
                     
                     ioctl(fd, FIONREAD, &nread);
 
-                    if(nread == 0) {        /* 客戶端沒資料或是斷線 */
+                    if (nread == 0) {        /* 客戶端沒資料或是斷線 */
                         close(fd);
                         FD_CLR(fd, &readfds);
                         DEBUG("客戶端#%d離線\n", fd);
                         
                     } else {                /* 處理客戶端資料 */
-                        
+                    
                         /* 開始接收資料 */
                         
                         if (recv(fd, buf, sizeof (buf), 0)) {
@@ -201,9 +201,9 @@ int main(int argc, char *argv[])
 
 void timestamp(char* ubuf) {
     
-    char            fmt[64], buf[64];
-    struct timeval  tv;
-    struct tm       *tm;
+    char fmt[64], buf[64];
+    struct timeval tv;
+    struct tm *tm;
 
     gettimeofday(&tv, NULL);
     

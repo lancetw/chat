@@ -41,7 +41,7 @@
 
 /* 預設開放端口*/
 
-#define PORT 1234
+#define PORT 12345
 
 int stdin_ready(int fd);
 
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
             
         }
 
-        if(!nread == 0) { /* 處理客戶端資料 */
+        if (!nread == 0) { /* 處理客戶端資料 */
             
             /* 開始接收資料 */
             if (FD_ISSET(client_sockfd, &readfds)) {
