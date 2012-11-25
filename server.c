@@ -39,8 +39,8 @@
 
 void timestamp(char*);
 
-int main(int argc, char *argv[]) 
-{
+int main(int argc, char *argv[]) {
+    
     int server_sockfd, client_sockfd, on;
     unsigned int server_len, client_len;
     struct sockaddr_in server_address;

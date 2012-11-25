@@ -45,8 +45,8 @@
 
 int stdin_ready(void);
 
-int main(int argc, char *argv[]) 
-{
+int main(int argc, char *argv[]) {
+    
     int client_sockfd, nread;
     int len;
     struct sockaddr_in address;
