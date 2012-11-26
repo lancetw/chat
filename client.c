@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
         strcpy(server, SERVER);
     }
 
-    memset(&address, 0x00, sizeof (struct sockaddr_in));
+    bzero(&address, sizeof (struct sockaddr_in));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = inet_addr(SERVER);
     address.sin_port = htons(PORT);
@@ -105,9 +105,10 @@ int main(int argc, char *argv[]) {
     }
     
     FD_ZERO(&readfds);
-    FD_ZERO(&buf);
-    FD_ZERO(&tmp);
-    FD_ZERO(&msg);
+    bzero(&msg, BUFF_LEN);
+    bzero(&tmp, BUFF_LEN);
+    bzero(&msg, BUFF_LEN);
+    
     FD_SET(client_sockfd, &readfds);
     
     /* 開始傳送接收資料 */

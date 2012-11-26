@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
     /*  設定伺服器 socket  */
 
-    memset(&server_address, 0x00, sizeof (struct sockaddr_in));
+    bzero(&server_address, sizeof (struct sockaddr_in));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = htons(PORT);
@@ -94,9 +94,10 @@ int main(int argc, char *argv[]) {
 
     FD_ZERO(&readfds);
     FD_ZERO(&testfds);
-    FD_ZERO(&buf);
-    FD_ZERO(&tmp);
-    FD_ZERO(&msg);
+    bzero(&msg, BUFF_LEN);
+    bzero(&tmp, BUFF_LEN);
+    bzero(&msg, BUFF_LEN);
+    
     FD_SET(server_sockfd, &readfds);
     
     /* 紀錄目前的 fd 數量 */
