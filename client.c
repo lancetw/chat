@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     do {
         printf("請輸入暱稱：");
         scanf("%s", nick);
-    } while ((char*)NULL == nick);
+    } while ((char*) NULL == nick);
 
     /*  建立客戶端 socket  */
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 
     /* 與伺服器建立連線 */
 
-    if ((result = connect(client_sockfd, (struct sockaddr *)&address, len)) < 0) {
+    if ((result = connect(client_sockfd, (struct sockaddr *) &address, len)) < 0) {
         perror("connect() 呼叫失敗"); 
         close(client_sockfd);
         exit(EXIT_FAILURE);

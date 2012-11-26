@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
     /*  綁定 socket fd 與伺服器位址  */
 
-    if (bind(server_sockfd, (struct sockaddr *)&server_address, server_len) == -1) {
+    if (bind(server_sockfd, (struct sockaddr *) &server_address, server_len) == -1) {
         perror("bind() 呼叫失敗");
         exit(EXIT_FAILURE);
 
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
         
         /* 使用 select() 模擬多人聊天室 */
 
-        result = select(fdmax + 1, &testfds, (fd_set *)0, (fd_set *)0, (struct timeval *) 0);
+        result = select(fdmax + 1, &testfds, (fd_set *) 0, (fd_set *) 0, (struct timeval *) 0);
 
         if (result < 1) {
             perror("伺服器發生問題");
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
                 
                 if (fd == server_sockfd) {
                     client_len = sizeof(client_address);
-                    client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_address, &client_len);
+                    client_sockfd = accept(server_sockfd, (struct sockaddr *) &client_address, &client_len);
                     FD_SET(client_sockfd, &readfds);
                     
                     /* 紀錄 file descriptor 最大值 */
