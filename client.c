@@ -117,9 +117,7 @@ int main(int argc, char *argv[]) {
 
     for(;;) {
         /* 開始接收資料 */
-        
-        ioctl(client_sockfd, FIONREAD, &nread);
-        
+  
         if (stdin_ready()) {
             fscanf(stdin, "\n%[^\n]", buf);
             sprintf(msg, "%s: %s", nick, buf);
@@ -129,6 +127,8 @@ int main(int argc, char *argv[]) {
         }
 
         usleep(100);
+        
+        ioctl(client_sockfd, FIONREAD, &nread);
 
         if (!nread == 0) { /* 處理客戶端資料 */
             

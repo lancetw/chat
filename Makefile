@@ -11,10 +11,10 @@ client: client.c
 debug: server_debug client_debug
 
 server_debug: server.c
-	${CC} -o server_d -D_DEBUG ${CFLAGS} server.c
+	${CC} -o server_d -D_DEBUG -g ${CFLAGS} server.c
 
 client_debug: client.c
-	${CC} -o client_d -D_DEBUG ${CFLAGS} client.c
+	${CC} -o client_d -D_DEBUG -g ${CFLAGS} client.c
 
 clean:
 	rm -rf server client server_d client_d
