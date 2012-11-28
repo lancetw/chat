@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 
     /*  建立伺服器 socket  */
 
-    if ((server_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    if ((server_sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
         perror("socket() 呼叫失敗");
         exit(EXIT_FAILURE);
     }

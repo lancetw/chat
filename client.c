@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
     /*  建立客戶端 socket  */
 
-    if ((client_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    if ((client_sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
         perror("socket() 呼叫失敗");
         exit(EXIT_FAILURE);
     }
