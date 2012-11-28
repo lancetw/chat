@@ -24,7 +24,7 @@ Use (server side):
     
 Use (client side):
 
-    $ ./client
+    $ ./client 127.0.0.1
 
 Screenshot:
 
