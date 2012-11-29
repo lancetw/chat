@@ -161,10 +161,10 @@ int main(int argc, char *argv[]) {
                         if (recv(fd, buf, sizeof (buf), 0)) {
                              DEBUG("訊息已接收\n");
                         }
-
-                        /* 處理取得的資料 */
                         
                         usleep(100);
+                        
+                        /* 處理取得的資料 */
                         
                         timestamp(tmp);
                         sprintf(msg, "%s %s", tmp, buf);
