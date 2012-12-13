@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -Wall -C99
+CFLAGS=-O2 -Wall
 
 all: server client
 
